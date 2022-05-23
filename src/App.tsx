@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Link, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from 'styled-components';
+import { AuthProvider, RequireAuth } from './hooks/AuthProvider';
+import HomePage from './pages/home/HomePage';
+import LoginPage from './pages/LoginPage';
+import Layout from './shared/Layout';
+import { GlobalStyle } from './styles/globalStyle';
+import { defaultTheme } from './styles/theme';
+
+function Admin() {
+  return (
+    <div>
+      <h1>Admin</h1>
+    </div>
+  );
+}
+
+function NotFound() {
+  return (
+    <div>
+      <h3>Pagina não encontrada</h3>
+      <Link to='/'>Home</Link>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={defaultTheme}>
+      <AuthProvider>
+        <Routes>
+          <Route path='/' element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path='login' element={<LoginPage/>} />
+            <Route path='admin' element={<RequireAuth><Admin /></RequireAuth>} />
+          </Route>
+          <Route path='*' element={<NotFound />} />
+        </Routes>
+        <GlobalStyle />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
