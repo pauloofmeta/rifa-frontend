@@ -5,11 +5,17 @@ import { Button, ButtonProps, Container,
   useTheme } from "@mui/material";
 import { pink, orange } from "@mui/material/colors";
 import { Done } from "@mui/icons-material";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { useCallback } from "react";
-import { FormContainer, TextFieldElement } from "react-hook-form-mui";
+import { FormContainer, RadioButtonGroup, TextFieldElement } from "react-hook-form-mui";
 import { IMaskInput } from "react-imask";
 import { ReactElement } from "react-imask/dist/mixin";
+import api from "../../shared/api";
+
+interface NumberModel {
+  number: Number;
+  inUse: boolean;
+}
 
 interface CustomProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -43,11 +49,25 @@ const FinishedButton = styled(Fab)(({ theme }) => ({
 }));
 
 function HomePage() {
-  var numbers = Array.from({length: 100}, (_, i) => i + 1);
+  const [numbers, setNumbers] = useState<NumberModel[]>([]);
   const [selectedNumbers, setSelectedNumbers] = useState<any[]>([]);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(false);
+
+  const options = [
+    { id: '1', label: 'Pix' },
+    { id: '2', label: 'Fralda' }
+  ];
+
+  useEffect(() => {
+    async function getNumbers() {
+      const numbersResponse = await api.get<NumberModel[]>('/numbers');
+      setNumbers(numbersResponse.data);
+    }
+
+    getNumbers();
+  }, []);
 
   const handleNumberClick = useCallback((n: any) => {
     setSelectedNumbers(
@@ -85,15 +105,16 @@ function HomePage() {
   return (
     <Container maxWidth="sm">
       <NumContent>
-        {numbers.map(n => 
+        {numbers.map((n, index) => 
           <PinkButton
-            key={n}
+            key={index}
             variant="contained"
             size="large"
+            disabled={n.inUse}
             onClick={() => handleNumberClick(n)}
             selected={selectedNumbers.includes(n)}
           >
-            {n}
+            {n.number.toString()}
           </PinkButton>
         )}
       </NumContent>
