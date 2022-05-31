@@ -18,6 +18,7 @@ function PixCode({ammount, id} : PixCodeProps) {
       const qrSrc = await qrcode.toDataURL(pixPayload);
       setQrImageSrc(qrSrc);
       setQrPayload(pixPayload);
+      console.log(pixPayload);
     }
     getQrCodeImg(ammount, id);
   }, [setQrImageSrc, ammount, id]);

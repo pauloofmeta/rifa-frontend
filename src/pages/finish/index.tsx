@@ -5,6 +5,7 @@ import styled from "styled-components";
 import PixCode from "../../components/pix-code";
 import { ContentCopy } from '@mui/icons-material';
 import { pink } from '@mui/material/colors';
+import useCopy from "use-copy";
 
 const ContainerFinish = styled(Container)`
   justify-content: center;
@@ -30,9 +31,9 @@ const PixContent = styled.div`
   align-items: center;
 `
 
-const PixKey = styled.span`
+const PixKey = styled.span<{ copied: boolean }>`
   padding: 0.5rem 1rem;
-  background-color: #d1d1d1;
+  background-color: ${p => p.copied ? '#abeaca' : '#d1d1d1' };
   border: solid 1px #8f8f8f;
   border-radius: 10px;
   display: flex;
@@ -40,7 +41,7 @@ const PixKey = styled.span`
   align-items: center;
 
   :hover {
-    background-color: #c3c3c3;
+    background-color: ${p => p.copied ? '#abeaca' : '#c3c3c3' };
     cursor: pointer;
   }
 
@@ -68,16 +69,25 @@ const OkBtn = mStyle(ButtonLink)<ButtonLinkProps>(({ theme }) => ({
   },
 }));
 
+const getPixKey = (): string => {
+  return process.env.REACT_APP_PIX_KEY || '';
+}
+
 function FinishPage() {
   const [searchParams] = useSearchParams();
   const option = searchParams.get('option');
-
-  const getPixKey = (): string => {
-    return process.env.REACT_APP_PIX_KEY || '';
-  }
+  const [copied, copy, setCopied] = useCopy(getPixKey());
 
   const getDeliveryDate = () => {
     return process.env.REACT_APP_DELIVERY_DATE || '10/07/2022';
+  }
+
+  const copyPix = () => {
+    copy();
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000)
   }
 
   if (!option) {
@@ -98,8 +108,8 @@ function FinishPage() {
         :
           <PixContent>
             <p>Sua opção foi PIX, use a chave ou scane o QRcode abaxio.</p>
-            <PixKey>
-              <span>{getPixKey()}</span>
+            <PixKey copied={copied} onClick={copyPix}>
+              <span>{copied ? 'Chave copiada!' : getPixKey()}</span>
               <ContentCopy />
             </PixKey>
             <PixCode id='2123123132' ammount={25.40} />
