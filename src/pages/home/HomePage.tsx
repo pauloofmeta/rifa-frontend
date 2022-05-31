@@ -1,38 +1,13 @@
-import { NumContent} from "./style";
-import { Button, ButtonProps, Container, 
-  Dialog, DialogActions, DialogContent, 
-  DialogTitle, Fab, styled, useMediaQuery, 
-  useTheme } from "@mui/material";
+import { Container, Fab, styled } from "@mui/material";
 import { pink, orange } from "@mui/material/colors";
 import { Done } from "@mui/icons-material";
-import { forwardRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useCallback } from "react";
-import { FormContainer, RadioButtonGroup, TextFieldElement } from "react-hook-form-mui";
-import { IMaskInput } from "react-imask";
-import { ReactElement } from "react-imask/dist/mixin";
 import api from "../../shared/api";
-
-interface NumberModel {
-  number: Number;
-  inUse: boolean;
-}
-
-interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-}
-
-interface PinkButtonProps extends ButtonProps {
-  selected?: boolean;
-}
-
-const PinkButton = styled(Button)<PinkButtonProps>(({ theme, selected }) => ({
-  color: theme.palette.getContrastText(pink[400]),
-  backgroundColor: selected ? pink[400] : pink[200],
-  '&:hover': {
-    backgroundColor: selected ? pink[400] : pink[200],
-  }
-}));
+import { NumberModel } from "../../models/number-model";
+import NumbersList from "../../components/numbers-list";
+import Loading from "../../components/loading";
+import OrderDialog from "../../components/order-dialog";
 
 const FinishedButton = styled(Fab)(({ theme }) => ({
   margin: '0',
@@ -50,26 +25,22 @@ const FinishedButton = styled(Fab)(({ theme }) => ({
 
 function HomePage() {
   const [numbers, setNumbers] = useState<NumberModel[]>([]);
-  const [selectedNumbers, setSelectedNumbers] = useState<any[]>([]);
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [selectedNumbers, setSelectedNumbers] = useState<NumberModel[]>([]);
   const [open, setOpen] = useState(false);
-
-  const options = [
-    { id: '1', label: 'Pix' },
-    { id: '2', label: 'Fralda' }
-  ];
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     async function getNumbers() {
       const numbersResponse = await api.get<NumberModel[]>('/numbers');
       setNumbers(numbersResponse.data);
+      setLoading(false);
     }
 
     getNumbers();
-  }, []);
+  }, [setLoading]);
 
-  const handleNumberClick = useCallback((n: any) => {
+  const handleNumberClick = useCallback((n: NumberModel) => {
     setSelectedNumbers(
       selectedNumbers.includes(n)
       ? selectedNumbers.filter(i => i !== n)
@@ -84,69 +55,32 @@ function HomePage() {
     setOpen(false);
   }
 
-  const TextMaskCustom = forwardRef<ReactElement, CustomProps>(
-    function TextMaskCustom(props, ref) {
-      const { onChange, ...other } = props;
-      return (
-        <IMaskInput
-          {...other}
-          mask="(#0) 0 0000-0000"
-          definitions={{
-            '#': /[1-9]/,
-          }}
-          //inputRef={ref}
-          onAccept={(value: any) => onChange({ target: { name: props.name, value } })}
-          overwrite
-        />
-      );
-    },
-  );
-
   return (
     <Container maxWidth="sm">
-      <NumContent>
-        {numbers.map((n, index) => 
-          <PinkButton
-            key={index}
-            variant="contained"
-            size="large"
-            disabled={n.inUse}
-            onClick={() => handleNumberClick(n)}
-            selected={selectedNumbers.includes(n)}
-          >
-            {n.number.toString()}
-          </PinkButton>
-        )}
-      </NumContent>
+      {loading 
+        ? <Loading />
+        :
+        <>
+          <NumbersList
+            numbers={numbers}
+            selectedNumbers={selectedNumbers}
+            onSelect={handleNumberClick}
+          />
 
-      {selectedNumbers.length > 0 &&
-        <FinishedButton variant="extended" onClick={handleFinshed}>
-          <Done />
-          Finalizar
-        </FinishedButton>
+          {selectedNumbers.length > 0 &&
+            <FinishedButton variant="extended" onClick={handleFinshed}>
+              <Done />
+              Finalizar
+            </FinishedButton>
+          }
+
+          <OrderDialog
+            open={open}
+            numbers={selectedNumbers}
+            onClose={handleCancelFinished}
+          />
+        </>
       }
-
-      <Dialog
-        open={open}
-        fullScreen={fullScreen}
-        onClose={handleCancelFinished}
-      >
-        <FormContainer onSuccess={(values) => console.log(values)}>
-          <DialogTitle>Finalizar</DialogTitle>
-          <DialogContent>
-            <div>
-              <TextFieldElement fullWidth name="name" label="Nome" margin="dense" required />
-              <TextFieldElement fullWidth name="phone" label="Celular" margin="dense" required InputProps={{
-                inputComponent: TextMaskCustom as any
-              }} />
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleCancelFinished}>Cancelar</Button>
-            <Button type="submit" autoFocus>Ok</Button>
-          </DialogActions>
-        </FormContainer>
-      </Dialog>
     </Container>
   );
 }

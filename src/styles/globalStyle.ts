@@ -10,6 +10,6 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: 'Poppins', Arial, Helvetica, sans-serif;
-    background-color: #fad4980f;
+    background-color: rgb(231, 235, 240);
   }
 `

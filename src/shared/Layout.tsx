@@ -9,21 +9,22 @@ const Logo = styled.div`
 `
 
 const Title1 = styled.span`
-  font-size: 35px;
-  color: #B28500;
-  font-weight: bold;
+  font-size: 30px;
+  color: #fb8c00;
+  font-family: 'Fredoka One', cursive;
 `
 
 const Title2 = styled.span`
-  font-size: 40px;
-  color: #f48fb1;
-  font-weight: bold;
+  margin-top: -15px;
+  font-size: 45px;
+  color: #e91e62;
+  font-family: 'Pacifico', cursive;
 `
 
 const Layout = () => (
   <div>
     <Logo>
-      <Title1>CHÁ RIFA DA</Title1>
+      <Title1>Chá Rifa da</Title1>
       <Title2>Elisa</Title2>
     </Logo>
 
