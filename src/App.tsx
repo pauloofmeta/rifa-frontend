@@ -4,7 +4,7 @@ import { SnackProvider } from './contexts/SnackContext';
 import { AuthProvider, RequireAuth } from './hooks/AuthProvider';
 import FinishPage from './pages/finish';
 import HomePage from './pages/home/HomePage';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/login';
 import Layout from './shared/Layout';
 import { GlobalStyle } from './styles/globalStyle';
 import { defaultTheme } from './styles/theme';

@@ -1,42 +1,48 @@
 import * as React from "react";
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import app from '../shared/firebase';
+import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 const fakeAuthProvider = {
   isAuthenticated: false,
-  signin(callback: VoidFunction) {
-    fakeAuthProvider.isAuthenticated = true;
-    setTimeout(callback, 100); // fake async
-  },
   signout(callback: VoidFunction) {
     fakeAuthProvider.isAuthenticated = false;
     setTimeout(callback, 100);
   },
 };
 
+interface UserModel {
+  email: string;
+  token: string;
+}
+
 interface AuthContextType {
   user: any;
-  signin: (email: string, password: string, callback: VoidFunction) => void;
-  signout: (callback: VoidFunction) => void;
+  signin: (email: string, password: string) => Promise<void>;
+  signout: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
 
 function AuthProvider({children}: {children: ReactNode}) {
-  const [user, setUser] = React.useState<any>(null);
+  const [user, setUser] = React.useState<UserModel | null>(() =>
+    JSON.parse(localStorage.getItem('authUser') || '{}'));
 
-  const signin = (email: string, password: string, callback: VoidFunction) => {
-    return fakeAuthProvider.signin(() => {
-      setUser({ email, password });
-      callback();
-    });
+  const signin = async (email: string, password: string) => {
+    const auth = getAuth(app);
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    const token = await credential.user.getIdToken();
+    const authUser = { email, token };
+    localStorage.setItem('authUser', JSON.stringify(authUser));
+    setUser(authUser);
   };
 
-  const signout = (callback: VoidFunction) => {
-    return fakeAuthProvider.signout(() => {
-      setUser(null);
-      callback();
-    });
+  const signout = async () => {
+    const auth = getAuth(app);
+    await signOut(auth);
+    localStorage.removeItem('authUser');
+    setUser(null);
   };
 
   const value = { user, signin, signout };
