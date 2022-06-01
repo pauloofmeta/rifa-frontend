@@ -18,7 +18,7 @@ interface UserModel {
 }
 
 interface AuthContextType {
-  user: any;
+  user: UserModel | null;
   signin: (email: string, password: string) => Promise<void>;
   signout: () => Promise<void>;
 }
