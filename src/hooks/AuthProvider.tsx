@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import app from '../shared/firebase';
 import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import jwt from "jwt-decode";
 
 const fakeAuthProvider = {
   isAuthenticated: false,
@@ -11,6 +12,11 @@ const fakeAuthProvider = {
     setTimeout(callback, 100);
   },
 };
+
+interface FirebaseToken {
+  exp: number
+  user_id: string
+}
 
 interface UserModel {
   email: string;
@@ -55,11 +61,19 @@ function RequireAuth({children}: {children: JSX.Element}) {
   const auth = useAuth();
   const location = useLocation();
 
-  if (!auth.user || !auth.user.token) {
-    return <Navigate to='/login' state={{from: location}} replace />;
+  if (auth.user && auth.user.token) {
+    const currentDate = new Date();
+    const jwtDecode = jwt<FirebaseToken>(auth.user.token);
+    const expired = jwtDecode.exp * 1000 < currentDate.getTime();
+
+    if (expired) {
+      return <Navigate to='/login' state={{from: location}} replace />;
+    }
+
+    return children;
   }
 
-  return children;
+  return <Navigate to='/login' state={{from: location}} replace />;
 }
 
 export {useAuth, AuthProvider, RequireAuth};

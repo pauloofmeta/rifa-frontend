@@ -66,9 +66,12 @@ const OrderDialog = ({ open, onClose, numbers }: OrderDialogProps) => {
         console.warn('Erro ao salvar', response.data)
         return;
       }
+
+      const orderId = response.data?.id;
+      const ammount = numbers.reduce((nSum, _) => nSum + 25.0, 0);
       
       setLoading(false);
-      navigate('/finish', { option } );
+      navigate('/finish', { option, ammount, orderId } );
     } catch (error: any) {
       if (error instanceof AxiosError) {
         const axiosError = error as AxiosError;
