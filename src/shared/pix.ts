@@ -15,7 +15,7 @@ function generateKey(key: string, message?: string): string {
   return payload.join('');
 }
 
-const genPixPayload = (transactionId: string = '***', message?: string, value?: number) => {
+const genPixPayload = (transactionId: string = '***', message?: string, value?: number | null) => {
   const key = process.env.REACT_APP_PIX_KEY || '';
   let name = process.env.REACT_APP_PIX_NAME || '';
   let city = process.env.REACT_APP_PIX_CITY || '';

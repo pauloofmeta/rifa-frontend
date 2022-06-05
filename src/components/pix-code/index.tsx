@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { genPixPayload } from "../../shared/pix";
 
 interface PixCodeProps {
-  id: string;
-  ammount: number;
+  id: string | null;
+  ammount: number | null;
 }
 
 function PixCode({ammount, id} : PixCodeProps) {
@@ -12,8 +12,8 @@ function PixCode({ammount, id} : PixCodeProps) {
   const [qrPaylod, setQrPayload] = useState('');
 
   useEffect(() => {
-    const getQrCodeImg = async (value: number, transactionId: string) => {
-      const pixPayload = genPixPayload(transactionId, 'Pg Chá rifa', value);
+    const getQrCodeImg = async (value: number | null, transactionId: string | null) => {
+      const pixPayload = genPixPayload(transactionId || '***', 'Pg Chá rifa', value);
 
       const qrSrc = await qrcode.toDataURL(pixPayload);
       setQrImageSrc(qrSrc);

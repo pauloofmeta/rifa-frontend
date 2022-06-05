@@ -75,8 +75,18 @@ const getPixKey = (): string => {
 
 function FinishPage() {
   const [searchParams] = useSearchParams();
-  const option = searchParams.get('option');
   const [copied, copy, setCopied] = useCopy(getPixKey());
+
+  const option = searchParams.get('option');
+  const orderId = searchParams.get('orderId');
+
+  const getAmmount = () => {
+    const ammount = searchParams.get('ammount');
+    if (ammount) {
+      return Number.parseFloat(ammount);
+    }
+    return null;
+  }
 
   const getDeliveryDate = () => {
     return process.env.REACT_APP_DELIVERY_DATE || '10/07/2022';
@@ -112,7 +122,7 @@ function FinishPage() {
               <span>{copied ? 'Chave copiada!' : getPixKey()}</span>
               <ContentCopy />
             </PixKey>
-            <PixCode id='2123123132' ammount={25.40} />
+            <PixCode id={orderId} ammount={getAmmount()} />
           </PixContent>  
         }
         <OkBtn variant="contained" to='/'>Ok</OkBtn>
